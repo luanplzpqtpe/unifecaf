@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import csv
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+import dataclasses
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
@@ -32,7 +32,7 @@ class Imovel(ABC):
         """Retorna os componentes usados no calculo."""
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Apartamento(Imovel):
     quartos: int
     possui_garagem: bool
@@ -64,7 +64,7 @@ class Apartamento(Imovel):
         return itens
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Casa(Imovel):
     quartos: int
     possui_garagem: bool
@@ -92,7 +92,7 @@ class Casa(Imovel):
         return itens
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Estudio(Imovel):
     vagas: int
     categoria = "Estudio"
@@ -119,7 +119,7 @@ class Estudio(Imovel):
         return itens
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Contrato:
     parcelas: int
     taxa: Decimal = Decimal("2000")
@@ -133,7 +133,7 @@ class Contrato:
         return (self.taxa / self.parcelas).quantize(MOEDA, rounding=ROUND_HALF_UP)
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Orcamento:
     cliente: str
     imovel: Imovel
@@ -194,15 +194,20 @@ def criar_imovel() -> Imovel:
             return Estudio(vagas)
         print("Para estudio, informe 0 ou o pacote minimo de 2 vagas.")
 
-
 def main() -> None:
     print("\nBem-vindo ao RentSmart")
     cliente = input("Nome do cliente: ").strip() or "Cliente nao informado"
     imovel = criar_imovel()
     parcelas = perguntar_inteiro("Parcelas da taxa contratual [1-5]: ", 1, 5)
+
     orcamento = Orcamento(cliente, imovel, Contrato(parcelas))
+
     print(orcamento.resumo())
-    saida = orcamento.gerar_csv()
+
+    saida = orcamento.gerar_csv(
+        Path(__file__).resolve().parent / "projecao_12_meses.csv"
+    )
+
     print(f"Projecao criada com sucesso: {saida.resolve()}")
 
 
